@@ -47,14 +47,14 @@ const Home: NextPage = () => {
     console.log(transactionList)
     setTimeout(() => {
       GetTransactions(transactionList);
-    }, 100);
+    }, 500);
   }, [transactionList]);
 
   if (transactionList != null) {
     listItems = transactionList.map((t) => {
       return (
         <ListItem key={t.txID}>
-          {t.numOfSeconds >= 1 ? t.numOfSeconds / 10 : "  "}&emsp;{t.txID}
+          {t.numOfSeconds >= 1 ? t.numOfSeconds / 2 : "  "}&emsp;{t.txID}
         </ListItem>
       );
     });
