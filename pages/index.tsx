@@ -54,7 +54,7 @@ const Home: NextPage = () => {
     listItems = transactionList.map((t) => {
       return (
         <ListItem key={t.txID}>
-          {t.numOfSeconds >= 1 ? t.numOfSeconds / 2 : "  "}&emsp;{t.txID}
+          {t.numOfSeconds >= 1 ? t.numOfSeconds : "  "}&emsp;{t.txID}
         </ListItem>
       );
     });
