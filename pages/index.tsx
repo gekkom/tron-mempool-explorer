@@ -1,16 +1,10 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 const axios = require("axios").default;
 
-import {
-  List,
-  ListItem,
-} from '@chakra-ui/react'
+import { List, ListItem } from "@chakra-ui/react";
 
 type Transaction = {
   txID: string;
@@ -18,34 +12,28 @@ type Transaction = {
 };
 
 const Home: NextPage = () => {
-  const [transactionList, setTransactionList] = useState<Transaction[]>(
-    []
-  );
+  const [transactionList, setTransactionList] = useState<Transaction[]>([]);
   let listItems: JSX.Element[] = [];
-  const GetTransactions = async () => {
+  async function GetTransactions(transactionList: Transaction[]) {
     await axios
       .get("/api/get_mempool_transaction_list")
       .then(function (response: any) {
         const tempTransactions: Transaction[] = [];
-        response.data.data.txId.map((txid) => {
-          const txID = txid.toString().trim();
-          if (
-            transactionList.find((t) => t.txID == txID)
-          ) {
+        for (let i = 0; i < response.data.data.txId.length; i++) {
+          const txID = response.data.data.txId[i].toString().trim();
+          if (transactionList.some((t) => t.txID == txID)) {
             tempTransactions.push({
               txID: txID,
               numOfSeconds:
-                transactionList.find((t) => t.txID == txID).numOfSeconds + 1,
+                transactionList.find((t) => t.txID == txID)!.numOfSeconds + 1,
             });
-            console.log(transactionList.find((t) => t.txID == txID).numOfSeconds + 1)
           } else {
             tempTransactions.push({ txID: txID, numOfSeconds: 1 });
           }
-        });
+        }
         tempTransactions.sort((a, b) => {
           return b.numOfSeconds - a.numOfSeconds;
-        }
-        );
+        });
 
         setTransactionList(tempTransactions);
       })
@@ -53,18 +41,22 @@ const Home: NextPage = () => {
         // handle error
         console.log(error.response);
       });
-  };
+  }
 
   useEffect(() => {
-    const id = setInterval(GetTransactions, 100);
-    return () => {
-      clearInterval(id);
-    };
-  }, []);
+    console.log(transactionList)
+    setTimeout(() => {
+      GetTransactions(transactionList);
+    }, 200);
+  }, [transactionList]);
 
   if (transactionList != null) {
     listItems = transactionList.map((t) => {
-      return <ListItem key={t.txID}>{t.numOfSeconds}&emsp;{t.txID}</ListItem>;
+      return (
+        <ListItem key={t.txID}>
+          {t.numOfSeconds >= 5 ? Math.round(t.numOfSeconds / 5) : "  "}&emsp;{t.txID}
+        </ListItem>
+      );
     });
   }
 
@@ -77,7 +69,10 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>TRON Mempool Explorer</h1>
+        <h1 className={styles.title}>
+          <div className={styles.titleTron}>TRON</div> Mempool Explorer
+        </h1>
+        <h2>Transactions: {listItems.length}</h2>
         <List>{listItems}</List>
       </main>
     </div>
